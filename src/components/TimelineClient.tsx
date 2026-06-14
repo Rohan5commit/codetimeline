@@ -49,7 +49,15 @@ function ContributorAvatars({ contributors }: { contributors: Contributor[] }) {
             className="contributor-avatar relative z-10 block h-7 w-7 overflow-hidden rounded-full border-2 border-[#0d0d1a] ring-1 ring-white/10 transition-transform duration-200 hover:z-20 hover:scale-125"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={c.avatar_url} alt={c.login} className="h-full w-full object-cover" />
+            <img
+              src={c.avatar_url}
+              alt={c.login}
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src =
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(c.login)}&background=6366f1&color=fff&size=56`
+              }}
+            />
           </a>
         ))}
       </div>
@@ -153,6 +161,10 @@ function ChapterCard({ chapter, index }: { chapter: Chapter; index: number }) {
                     src={c.author.avatar_url}
                     alt={c.author.login}
                     className="mt-0.5 h-4 w-4 shrink-0 rounded-full"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src =
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(c.author!.login)}&background=3f3f46&color=fff&size=32`
+                    }}
                   />
                 )}
                 <span className="truncate text-xs text-zinc-500 leading-5">{c.message}</span>
