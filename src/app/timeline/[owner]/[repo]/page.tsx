@@ -20,16 +20,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { owner, repo } = await params
   const base = process.env.NEXT_PUBLIC_APP_URL ?? 'https://codetimeline.vercel.app'
   const ogUrl = `${base}/api/og/${owner}/${repo}`
+  const ogTitle = `${owner}/${repo} on CodeTimeline`
+  const ogDescription = `Explore the development history of ${owner}/${repo} — AI-named chapters, language evolution, contributor journeys, and commit activity, all animated.`
   return {
-    title: `${owner}/${repo} — CodeTimeline`,
-    description: `Visual development timeline for ${owner}/${repo}`,
+    title: `${owner}/${repo} — Visual Git History | CodeTimeline`,
+    description: ogDescription,
     openGraph: {
-      title: `${owner}/${repo} on CodeTimeline`,
-      description: `Explore the full history of ${owner}/${repo} as an animated visual timeline`,
-      images: [{ url: ogUrl, width: 1200, height: 630 }],
+      title: ogTitle,
+      description: ogDescription,
+      siteName: 'CodeTimeline',
+      images: [{ url: ogUrl, width: 1200, height: 630, alt: `${owner}/${repo} timeline on CodeTimeline` }],
     },
     twitter: {
       card: 'summary_large_image',
+      title: ogTitle,
+      description: ogDescription,
       images: [ogUrl],
     },
   }
