@@ -44,6 +44,10 @@ export async function GET(
     PHP: '#4F5D95',
   }
 
+  const description = info.description
+    ? String(info.description).slice(0, 110)
+    : ''
+
   return new ImageResponse(
     (
       <div
@@ -54,12 +58,10 @@ export async function GET(
           display: 'flex',
           flexDirection: 'column',
           padding: '60px',
-          fontFamily: 'system-ui, sans-serif',
-          position: 'relative',
-          overflow: 'hidden',
+          fontFamily: 'sans-serif',
         }}
       >
-        {/* Glow orbs */}
+        {/* Glow orbs — absolute positioned */}
         <div
           style={{
             position: 'absolute',
@@ -67,8 +69,8 @@ export async function GET(
             left: '-100px',
             width: '400px',
             height: '400px',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)',
+            borderRadius: '200px',
+            background: 'rgba(99,102,241,0.12)',
           }}
         />
         <div
@@ -78,13 +80,13 @@ export async function GET(
             right: '-100px',
             width: '400px',
             height: '400px',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%)',
+            borderRadius: '200px',
+            background: 'rgba(139,92,246,0.12)',
           }}
         />
 
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '32px' }}>
+        {/* Header row */}
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '40px' }}>
           <div
             style={{
               background: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
@@ -94,10 +96,10 @@ export async function GET(
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '24px',
+              marginRight: '14px',
             }}
           >
-            ⏱
+            <div style={{ color: 'white', fontSize: '22px', display: 'flex' }}>CT</div>
           </div>
           <span style={{ color: '#6366f1', fontSize: '20px', fontWeight: 600, letterSpacing: '0.1em' }}>
             CODETIMELINE
@@ -105,80 +107,89 @@ export async function GET(
         </div>
 
         {/* Repo name */}
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
-          <div style={{ color: '#ffffff', fontSize: '56px', fontWeight: 800, lineHeight: 1.1, marginBottom: '16px' }}>
-            {owner}/{repo}
+        <div style={{ color: '#ffffff', fontSize: '56px', fontWeight: 800, lineHeight: '1.1', marginBottom: '16px', display: 'flex' }}>
+          {owner}/{repo}
+        </div>
+
+        {/* Description */}
+        {description ? (
+          <div
+            style={{
+              color: '#94a3b8',
+              fontSize: '24px',
+              lineHeight: '1.5',
+              maxWidth: '800px',
+              marginBottom: '32px',
+              display: 'flex',
+            }}
+          >
+            {description}
           </div>
-          {info.description && (
+        ) : (
+          <div style={{ marginBottom: '32px', display: 'flex' }} />
+        )}
+
+        {/* Spacer */}
+        <div style={{ display: 'flex', flexGrow: 1 }} />
+
+        {/* Stats row */}
+        <div style={{ display: 'flex', marginBottom: topLangs.length > 0 ? '28px' : '0' }}>
+          {[
+            { label: 'Stars', value: String(info.stargazers_count?.toLocaleString() ?? '0') },
+            { label: 'Forks', value: String(info.forks_count?.toLocaleString() ?? '0') },
+          ].map((stat, i) => (
             <div
+              key={stat.label}
               style={{
-                color: '#94a3b8',
-                fontSize: '24px',
-                lineHeight: 1.5,
-                maxWidth: '800px',
-                marginBottom: '40px',
-                overflow: 'hidden',
-                display: '-webkit-box',
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                borderRadius: '12px',
+                padding: '16px 24px',
+                display: 'flex',
+                flexDirection: 'column',
+                marginRight: i === 0 ? '16px' : '0',
               }}
             >
-              {info.description.slice(0, 120)}
+              <span style={{ color: '#6366f1', fontSize: '28px', fontWeight: 700 }}>{stat.value}</span>
+              <span style={{ color: '#64748b', fontSize: '14px', marginTop: '4px' }}>{stat.label}</span>
             </div>
-          )}
-
-          {/* Stats row */}
-          <div style={{ display: 'flex', gap: '32px', marginTop: 'auto' }}>
-            {[
-              { label: 'Stars', value: info.stargazers_count?.toLocaleString() ?? '0' },
-              { label: 'Forks', value: info.forks_count?.toLocaleString() ?? '0' },
-            ].map((stat) => (
-              <div
-                key={stat.label}
-                style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '12px',
-                  padding: '16px 24px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}
-              >
-                <span style={{ color: '#6366f1', fontSize: '28px', fontWeight: 700 }}>{stat.value}</span>
-                <span style={{ color: '#64748b', fontSize: '14px', marginTop: '4px' }}>{stat.label}</span>
-              </div>
-            ))}
-          </div>
+          ))}
         </div>
 
         {/* Language pills */}
         {topLangs.length > 0 && (
-          <div style={{ display: 'flex', gap: '12px', marginTop: '32px' }}>
-            {topLangs.map((lang) => (
-              <div
-                key={lang}
-                style={{
-                  background: `${LANG_COLORS[lang] ?? '#6366f1'}22`,
-                  border: `1px solid ${LANG_COLORS[lang] ?? '#6366f1'}66`,
-                  borderRadius: '999px',
-                  padding: '6px 16px',
-                  color: LANG_COLORS[lang] ?? '#6366f1',
-                  fontSize: '16px',
-                  fontWeight: 600,
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                }}
-              >
+          <div style={{ display: 'flex' }}>
+            {topLangs.map((lang, i) => {
+              const color = LANG_COLORS[lang] ?? '#6366f1'
+              return (
                 <div
+                  key={lang}
                   style={{
-                    width: '8px',
-                    height: '8px',
-                    borderRadius: '50%',
-                    background: LANG_COLORS[lang] ?? '#6366f1',
+                    background: 'rgba(99,102,241,0.12)',
+                    border: `1px solid rgba(99,102,241,0.35)`,
+                    borderRadius: '999px',
+                    padding: '6px 16px',
+                    color,
+                    fontSize: '16px',
+                    fontWeight: 600,
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginRight: i < topLangs.length - 1 ? '10px' : '0',
                   }}
-                />
-                {lang}
-              </div>
-            ))}
+                >
+                  <div
+                    style={{
+                      width: '8px',
+                      height: '8px',
+                      borderRadius: '4px',
+                      background: color,
+                      marginRight: '8px',
+                    }}
+                  />
+                  {lang}
+                </div>
+              )
+            })}
           </div>
         )}
       </div>
