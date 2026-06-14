@@ -1,11 +1,13 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, Suspense } from 'react'
+import dynamic from 'next/dynamic'
 import Link from 'next/link'
-import { LanguageDonut } from './LanguageDonut'
-import { CommitSparkline } from './CommitSparkline'
 import { ShareButton } from './ShareButton'
 import type { RepoData, Chapter, Contributor } from '@/lib/types'
+
+const LanguageDonut = dynamic(() => import('./LanguageDonut').then((m) => ({ default: m.LanguageDonut })), { ssr: false })
+const CommitSparkline = dynamic(() => import('./CommitSparkline').then((m) => ({ default: m.CommitSparkline })), { ssr: false })
 
 interface Props {
   data: RepoData
@@ -144,7 +146,9 @@ function ChapterCard({ chapter, index }: { chapter: Chapter; index: number }) {
       {Object.keys(chapter.languages).length > 0 && (
         <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
           <p className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-600">Languages</p>
-          <LanguageDonut languages={chapter.languages} size={120} />
+          <Suspense fallback={<div className="h-[120px] w-[120px] animate-pulse rounded-full bg-white/[0.04]" />}>
+            <LanguageDonut languages={chapter.languages} size={120} />
+          </Suspense>
         </div>
       )}
 
@@ -350,7 +354,9 @@ export function TimelineClient({ data }: Props) {
           {commitFrequency.length > 2 && (
             <div className="mt-6 rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
               <p className="mb-3 text-xs font-medium uppercase tracking-wider text-zinc-600">Commit activity</p>
-              <CommitSparkline data={commitFrequency} width={700} height={56} />
+              <Suspense fallback={<div className="h-14 w-full animate-pulse rounded-lg bg-white/[0.04]" />}>
+                <CommitSparkline data={commitFrequency} width={700} height={56} />
+              </Suspense>
             </div>
           )}
         </div>
