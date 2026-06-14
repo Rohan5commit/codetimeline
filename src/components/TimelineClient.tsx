@@ -15,7 +15,7 @@ function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })
 }
 
-function AgeStat(createdAt: string) {
+function getAgeStat(createdAt: string): string {
   const days = Math.floor((Date.now() - new Date(createdAt).getTime()) / 86400000)
   if (days < 365) return `${days}d`
   const years = (days / 365).toFixed(1)
@@ -261,7 +261,7 @@ export function TimelineClient({ data }: Props) {
     return () => ctx?.revert()
   }, [])
 
-  const ageStr = AgeStat(stats.createdAt)
+  const ageStr = getAgeStat(stats.createdAt)
 
   return (
     <div ref={containerRef} className="min-h-screen bg-[#050508]">
