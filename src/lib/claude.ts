@@ -1,12 +1,12 @@
 import type { Chapter } from './types'
+import { requireEnv } from './env'
 
 const NVIDIA_BASE = 'https://integrate.api.nvidia.com/v1'
 // Best free reasoning model on NIM's catalog
 const MODEL = 'nvidia/llama-3.1-nemotron-70b-instruct'
 
 async function nimChat(prompt: string): Promise<string> {
-  const apiKey = process.env.NVIDIA_API_KEY
-  if (!apiKey) throw new Error('NVIDIA_API_KEY not set')
+  const apiKey = requireEnv('NVIDIA_API_KEY')
 
   const res = await fetch(`${NVIDIA_BASE}/chat/completions`, {
     method: 'POST',

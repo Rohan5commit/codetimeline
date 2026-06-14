@@ -8,6 +8,12 @@ export async function GET(
 ) {
   const { owner, repo } = await params
 
+  // GITHUB_TOKEN is optional (public API works without it, just rate-limited).
+  // We still warn clearly rather than letting a downstream 403 produce a cryptic 500.
+  if (!process.env.GITHUB_TOKEN) {
+    console.warn('[og] GITHUB_TOKEN is not set — using unauthenticated GitHub API (60 req/hr limit)')
+  }
+
   let info: any = { full_name: `${owner}/${repo}`, description: '', stargazers_count: 0, forks_count: 0 }
   let languages: Record<string, number> = {}
 
@@ -16,8 +22,15 @@ export async function GET(
       fetchRepoInfo(owner, repo),
       fetchLanguages(owner, repo),
     ])
-  } catch {
-    // use defaults
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err)
+    if (msg.includes('rate limit')) {
+      return Response.json(
+        { error: 'GitHub rate limit exceeded. Set GITHUB_TOKEN to increase the limit to 5,000 req/hr.' },
+        { status: 429 }
+      )
+    }
+    // For other errors (e.g. private repo) fall through and render with defaults
   }
 
   const topLangs = Object.entries(languages)

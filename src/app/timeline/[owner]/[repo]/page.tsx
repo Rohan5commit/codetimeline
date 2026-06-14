@@ -50,8 +50,11 @@ async function TimelineData({ owner, repo }: { owner: string; repo: string }) {
     try {
       const titles = await identifyChapters(`${owner}/${repo}`, data.chapters)
       titledChapters = mergeChapterTitles(data.chapters, titles)
-    } catch {
-      // fall through with default titles
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : ''
+      // Surface misconfiguration clearly; swallow transient AI errors gracefully
+      if (msg.includes('Server misconfigured')) throw err
+      // Otherwise fall through with date-based default titles
     }
   }
 
