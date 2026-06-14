@@ -18,7 +18,8 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { owner, repo } = await params
-  const ogUrl = `/api/og/${owner}/${repo}`
+  const base = process.env.NEXT_PUBLIC_APP_URL ?? 'https://codetimeline.vercel.app'
+  const ogUrl = `${base}/api/og/${owner}/${repo}`
   return {
     title: `${owner}/${repo} — CodeTimeline`,
     description: `Visual development timeline for ${owner}/${repo}`,
