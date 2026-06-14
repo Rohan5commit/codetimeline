@@ -33,7 +33,13 @@ export function CommitSparkline({ data, width = 280, height = 48, color = '#6366
     return { points: linePoints, area: areaPoints }
   }, [data, width, height])
 
-  if (data.length < 2) return null
+  if (data.length < 2) {
+    return (
+      <div className="flex h-14 items-center justify-center rounded-lg border border-white/5 bg-white/[0.02]">
+        <span className="text-xs text-zinc-600">Not enough commit data to plot</span>
+      </div>
+    )
+  }
 
   const id = `sparkline-gradient-${Math.random().toString(36).slice(2)}`
 

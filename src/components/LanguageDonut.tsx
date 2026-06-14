@@ -81,7 +81,16 @@ export function LanguageDonut({ languages, size = 140 }: Props) {
     ].join(' ')
   }
 
-  if (slices.length === 0) return null
+  if (slices.length === 0) {
+    return (
+      <div
+        className="flex items-center justify-center rounded-full border border-white/5 bg-white/[0.02]"
+        style={{ width: size, height: size }}
+      >
+        <span className="text-center text-xs text-zinc-600">No language data</span>
+      </div>
+    )
+  }
 
   const primaryLang = slices[0]?.name ?? ''
 
