@@ -22,7 +22,7 @@ function getAgeStat(createdAt: string): string {
   return `${years}y`
 }
 
-function StatCard({ label, value, accent = '#6366f1' }: { label: string; value: string; accent?: string }) {
+function StatCard({ label, value, accent = 'var(--accent-primary)' }: { label: string; value: string; accent?: string }) {
   return (
     <div className="flex flex-col gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-4">
       <span className="text-2xl font-bold" style={{ color: accent }}>{value}</span>
@@ -335,10 +335,10 @@ export function TimelineClient({ data }: Props) {
           {/* Stats grid */}
           <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
-              { label: 'Commits', value: stats.totalCommits.toLocaleString(), accent: '#6366f1' },
-              { label: 'Contributors', value: stats.totalContributors.toLocaleString(), accent: '#8b5cf6' },
-              { label: 'Age', value: ageStr, accent: '#06b6d4' },
-              { label: 'Stars', value: stats.stargazersCount.toLocaleString(), accent: '#f59e0b' },
+              { label: 'Commits', value: stats.totalCommits.toLocaleString(), accent: 'var(--accent-primary)' },
+              { label: 'Contributors', value: stats.totalContributors.toLocaleString(), accent: 'var(--accent-violet)' },
+              { label: 'Age', value: ageStr, accent: 'var(--accent-cyan)' },
+              { label: 'Stars', value: stats.stargazersCount.toLocaleString(), accent: 'var(--accent-amber)' },
             ].map((s) => (
               <div key={s.label} className="stat-card-animate">
                 <StatCard label={s.label} value={s.value} accent={s.accent} />
