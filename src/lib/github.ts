@@ -14,10 +14,13 @@ async function ghFetch(url: string) {
     headers: getHeaders(),
     next: { revalidate: 3600 },
   })
-  if (!res.ok) {
-    const text = await res.text().catch(() => '')
-    throw new Error(`GitHub API ${res.status}: ${text.slice(0, 200)}`)
+  if (res.status === 403) {
+    const remaining = res.headers.get('x-ratelimit-remaining')
+    if (remaining === '0') throw new Error('GitHub rate limit exceeded. Please try again later.')
+    throw new Error('GitHub API access forbidden (403).')
   }
+  if (res.status === 404) throw new Error('Repository not found or is private.')
+  if (!res.ok) throw new Error(`GitHub API error: ${res.status}`)
   return res.json()
 }
 

@@ -63,8 +63,12 @@ export default async function TimelinePage({ params }: Props) {
 
   try {
     await fetchRepoInfo(owner, repo)
-  } catch {
-    notFound()
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : ''
+    // Only send genuine 404s to the not-found page; rate limits and other
+    // errors bubble up to the error boundary with a useful message.
+    if (msg.includes('not found') || msg.includes('private')) notFound()
+    throw err
   }
 
   return (
