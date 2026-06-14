@@ -6,8 +6,8 @@ const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'CodeTimeline — Visual GitHub History',
-  description: 'Generate a beautiful, AI-narrated visual timeline of any public GitHub repository',
+  title: 'CodeTimeline — Visual Git History Storyteller',
+  description: 'Turn any GitHub repo into a beautiful, AI-powered visual history timeline.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? 'https://codetimeline.vercel.app'),
   openGraph: {
     siteName: 'CodeTimeline',
