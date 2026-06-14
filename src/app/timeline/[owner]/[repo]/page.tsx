@@ -46,7 +46,7 @@ async function TimelineData({ owner, repo }: { owner: string; repo: string }) {
   const data = processRepoData(repoInfo, rawCommits, rawContributors, rawReleases, languages)
 
   let titledChapters = data.chapters
-  if (process.env.ANTHROPIC_API_KEY && data.chapters.length > 0) {
+  if (process.env.NVIDIA_API_KEY && data.chapters.length > 0) {
     try {
       const titles = await identifyChapters(`${owner}/${repo}`, data.chapters)
       titledChapters = mergeChapterTitles(data.chapters, titles)

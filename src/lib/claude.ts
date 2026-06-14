@@ -1,7 +1,35 @@
-import Anthropic from '@anthropic-ai/sdk'
 import type { Chapter } from './types'
 
-const client = new Anthropic()
+const NVIDIA_BASE = 'https://integrate.api.nvidia.com/v1'
+// Best free reasoning model on NIM's catalog
+const MODEL = 'nvidia/llama-3.1-nemotron-70b-instruct'
+
+async function nimChat(prompt: string): Promise<string> {
+  const apiKey = process.env.NVIDIA_API_KEY
+  if (!apiKey) throw new Error('NVIDIA_API_KEY not set')
+
+  const res = await fetch(`${NVIDIA_BASE}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({
+      model: MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 1024,
+      temperature: 0.6,
+    }),
+  })
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '')
+    throw new Error(`NVIDIA NIM error ${res.status}: ${text.slice(0, 200)}`)
+  }
+
+  const data = await res.json()
+  return data.choices?.[0]?.message?.content ?? ''
+}
 
 export async function identifyChapters(
   repoName: string,
@@ -25,13 +53,7 @@ ${topCommits}`
     })
     .join('\n\n---\n\n')
 
-  const message = await client.messages.create({
-    model: 'claude-sonnet-4-5',
-    max_tokens: 1024,
-    messages: [
-      {
-        role: 'user',
-        content: `You're analyzing the development history of the GitHub project "${repoName}".
+  const prompt = `You're analyzing the development history of the GitHub project "${repoName}".
 
 For each of the ${chapters.length} time periods below, create:
 1. A compelling chapter title (4–7 words, narrative and evocative — like "The MVP Sprint", "The Great Refactor", "Community Takes Over")
@@ -39,18 +61,11 @@ For each of the ${chapters.length} time periods below, create:
 
 Return ONLY a valid JSON array with ${chapters.length} objects, each with "title" (string) and "description" (string). No markdown, no explanation — just the raw JSON array.
 
-${chaptersText}`,
-      },
-    ],
-  })
-
-  const content = message.content[0]
-  if (content.type !== 'text') return fallbackTitles(chapters)
+${chaptersText}`
 
   try {
-    const raw = content.text.trim()
-    // Strip markdown code fences if present
-    const cleaned = raw.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim()
+    const raw = await nimChat(prompt)
+    const cleaned = raw.trim().replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim()
     const parsed = JSON.parse(cleaned)
     if (Array.isArray(parsed) && parsed.length > 0) return parsed
     return fallbackTitles(chapters)
