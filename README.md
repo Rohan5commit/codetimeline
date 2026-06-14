@@ -6,6 +6,8 @@ Paste a GitHub URL → get a scrollable, animated timeline of the project's enti
 
 🔗 **[codetimeline.vercel.app](https://codetimeline.vercel.app)**
 
+![CodeTimeline demo — home page → URL input → scrollable chapter timeline](docs/demo.gif)
+
 ---
 
 ## Features
@@ -96,6 +98,10 @@ src/
     ├── process.ts               # Chapter grouping logic
     └── types.ts                 # TypeScript interfaces
 ```
+
+## Contributing
+
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 
