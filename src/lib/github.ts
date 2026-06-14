@@ -1,3 +1,5 @@
+import type { RepoInfo } from './types'
+
 const BASE = 'https://api.github.com'
 
 function getHeaders(): HeadersInit {
@@ -24,7 +26,7 @@ async function ghFetch(url: string) {
   return res.json()
 }
 
-export async function fetchRepoInfo(owner: string, repo: string) {
+export async function fetchRepoInfo(owner: string, repo: string): Promise<RepoInfo> {
   return ghFetch(`${BASE}/repos/${owner}/${repo}`)
 }
 

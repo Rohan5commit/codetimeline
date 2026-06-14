@@ -1,3 +1,18 @@
+export interface RepoInfo {
+  full_name: string
+  name: string
+  description: string | null
+  stargazers_count: number
+  forks_count: number
+  created_at: string
+  pushed_at: string
+  language: string | null
+  owner: {
+    login: string
+    avatar_url: string
+  }
+}
+
 export interface GitHubCommit {
   sha: string
   message: string

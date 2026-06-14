@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og'
 import { NextRequest } from 'next/server'
 import { fetchRepoInfo, fetchLanguages } from '@/lib/github'
+import type { RepoInfo } from '@/lib/types'
 
 export async function GET(
   _request: NextRequest,
@@ -8,20 +9,15 @@ export async function GET(
 ) {
   const { owner, repo } = await params
 
-  // GITHUB_TOKEN is optional (public API works without it, just rate-limited).
-  // We still warn clearly rather than letting a downstream 403 produce a cryptic 500.
   if (!process.env.GITHUB_TOKEN) {
     console.warn('[og] GITHUB_TOKEN is not set — using unauthenticated GitHub API (60 req/hr limit)')
   }
 
-  let info: any = { full_name: `${owner}/${repo}`, description: '', stargazers_count: 0, forks_count: 0 }
+  let info: RepoInfo | null = null
   let languages: Record<string, number> = {}
 
   try {
-    ;[info, languages] = await Promise.all([
-      fetchRepoInfo(owner, repo),
-      fetchLanguages(owner, repo),
-    ])
+    info = await fetchRepoInfo(owner, repo)
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err)
     if (msg.includes('rate limit')) {
@@ -30,8 +26,18 @@ export async function GET(
         { status: 429 }
       )
     }
-    // For other errors (e.g. private repo) fall through and render with defaults
+    // Private / not-found repo: fall through and render placeholder card
   }
+
+  try {
+    languages = await fetchLanguages(owner, repo)
+  } catch {
+    // Non-critical — render without language pills
+  }
+
+  const stars = info?.stargazers_count ?? 0
+  const forks = info?.forks_count ?? 0
+  const description = (info?.description ?? '').slice(0, 110)
 
   const topLangs = Object.entries(languages)
     .sort((a, b) => b[1] - a[1])
@@ -56,10 +62,6 @@ export async function GET(
     Dart: '#00B4AB',
     PHP: '#4F5D95',
   }
-
-  const description = info.description
-    ? String(info.description).slice(0, 110)
-    : ''
 
   return new ImageResponse(
     (
@@ -148,8 +150,8 @@ export async function GET(
         {/* Stats row */}
         <div style={{ display: 'flex', marginBottom: topLangs.length > 0 ? '28px' : '0' }}>
           {[
-            { label: 'Stars', value: String(info.stargazers_count?.toLocaleString() ?? '0') },
-            { label: 'Forks', value: String(info.forks_count?.toLocaleString() ?? '0') },
+            { label: 'Stars', value: stars.toLocaleString() },
+            { label: 'Forks', value: forks.toLocaleString() },
           ].map((stat, i) => (
             <div
               key={stat.label}
