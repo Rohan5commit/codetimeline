@@ -6,8 +6,8 @@ import { useRouter } from 'next/navigation'
 const EXAMPLES = [
   { label: 'facebook/react', owner: 'facebook', repo: 'react' },
   { label: 'vercel/next.js', owner: 'vercel', repo: 'next.js' },
-  { label: 'microsoft/vscode', owner: 'microsoft', repo: 'vscode' },
-  { label: 'torvalds/linux', owner: 'torvalds', repo: 'linux' },
+  { label: 'expressjs/express', owner: 'expressjs', repo: 'express' },
+  { label: 'vuejs/vue', owner: 'vuejs', repo: 'vue' },
 ]
 
 function parseGitHubUrl(input: string): { owner: string; repo: string } | null {
