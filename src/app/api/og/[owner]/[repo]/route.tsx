@@ -197,6 +197,6 @@ export async function GET(
         )}
       </div>
     ),
-    { width: 1200, height: 630, alt: `${owner}/${repo} timeline on CodeTimeline` }
+    { width: 1200, height: 630 }
   )
 }
