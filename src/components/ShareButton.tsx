@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 interface Props {
   owner: string
@@ -9,16 +9,22 @@ interface Props {
 
 export function ShareButton({ owner, repo }: Props) {
   const [status, setStatus] = useState<'idle' | 'copied' | 'error'>('idle')
+  const mountedRef = useRef(true)
+
+  useEffect(() => {
+    mountedRef.current = true
+    return () => { mountedRef.current = false }
+  }, [])
 
   async function handleShare() {
     const url = typeof window !== 'undefined' ? window.location.href : `https://codetimeline.vercel.app/timeline/${owner}/${repo}`
     try {
       await navigator.clipboard.writeText(url)
       setStatus('copied')
-      setTimeout(() => setStatus('idle'), 2000)
+      setTimeout(() => { if (mountedRef.current) setStatus('idle') }, 2000)
     } catch {
       setStatus('error')
-      setTimeout(() => setStatus('idle'), 2000)
+      setTimeout(() => { if (mountedRef.current) setStatus('idle') }, 2000)
     }
   }
 

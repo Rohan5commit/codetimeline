@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo } from 'react'
+import { useMemo, useId } from 'react'
 import type { CommitFrequencyPoint } from '@/lib/types'
 
 interface Props {
@@ -11,6 +11,7 @@ interface Props {
 }
 
 export function CommitSparkline({ data, width = 280, height = 48, color = '#6366f1' }: Props) {
+  const gradientId = useId()
   const { points, area } = useMemo(() => {
     if (data.length < 2) return { points: '', area: '' }
 
@@ -41,12 +42,10 @@ export function CommitSparkline({ data, width = 280, height = 48, color = '#6366
     )
   }
 
-  const id = `sparkline-gradient-${Math.random().toString(36).slice(2)}`
-
   return (
-    <svg width={width} height={height} className="overflow-visible">
+    <svg width={width} height={height} className="overflow-visible" role="img" aria-label="Commit activity sparkline">
       <defs>
-        <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={color} stopOpacity={0.3} />
           <stop offset="100%" stopColor={color} stopOpacity={0} />
         </linearGradient>
@@ -54,7 +53,7 @@ export function CommitSparkline({ data, width = 280, height = 48, color = '#6366
       {area && (
         <polygon
           points={area}
-          fill={`url(#${id})`}
+          fill={`url(#${gradientId})`}
         />
       )}
       {points && (

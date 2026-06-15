@@ -24,7 +24,6 @@ function parseGitHubUrl(input: string): { owner: string; repo: string } | null {
 export function RepoInput() {
   const [value, setValue] = useState('')
   const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
   const router = useRouter()
 
   function handleSubmit(e: FormEvent) {
@@ -35,7 +34,6 @@ export function RepoInput() {
       setError('Enter a valid GitHub URL or owner/repo')
       return
     }
-    setLoading(true)
     router.push(`/timeline/${parsed.owner}/${parsed.repo}`)
   }
 
@@ -49,39 +47,33 @@ export function RepoInput() {
             </svg>
           </div>
           <input
+            id="repo-url"
             type="text"
             value={value}
             onChange={(e) => { setValue(e.target.value); setError('') }}
             placeholder="github.com/owner/repo or owner/repo"
             className="w-full rounded-2xl border border-white/10 bg-white/5 py-4 pl-12 pr-4 text-white placeholder-zinc-600 outline-none transition-all duration-200 focus:border-indigo-500/50 focus:bg-white/[0.07] focus:ring-2 focus:ring-indigo-500/20"
-            disabled={loading}
             autoComplete="off"
             spellCheck={false}
+            aria-label="GitHub repository URL"
+            aria-describedby={error ? 'repo-error' : undefined}
+            aria-invalid={error ? true : undefined}
           />
         </div>
 
         {error && (
-          <p className="text-sm text-red-400">{error}</p>
+          <p id="repo-error" className="text-sm text-red-400" role="alert">{error}</p>
         )}
 
         <button
           type="submit"
-          disabled={loading || !value.trim()}
+          disabled={!value.trim()}
           className="group flex w-full items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-6 py-4 font-semibold text-white transition-colors duration-150 hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-40"
         >
-          {loading ? (
-            <>
-              <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-              Analyzing…
-            </>
-          ) : (
-            <>
-              Generate Timeline
-              <svg className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </>
-          )}
+          Generate Timeline
+          <svg className="h-4 w-4 transition-transform duration-150 group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
         </button>
       </form>
 

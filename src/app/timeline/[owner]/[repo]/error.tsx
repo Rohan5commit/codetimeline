@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect } from 'react'
+import { isAppError } from '@/lib/errors'
 
 interface Props {
   error: Error & { digest?: string }
@@ -13,8 +14,8 @@ export default function TimelineError({ error, reset }: Props) {
     console.error(error)
   }, [error])
 
-  const isRateLimit = error.message.toLowerCase().includes('rate limit')
-  const isNotFound = error.message.toLowerCase().includes('not found') || error.message.toLowerCase().includes('private')
+  const isRateLimit = isAppError(error, 'RATE_LIMIT')
+  const isNotFound = isAppError(error, 'NOT_FOUND')
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-[#050508] px-6 text-center">
@@ -27,7 +28,7 @@ export default function TimelineError({ error, reset }: Props) {
           ? 'The GitHub API rate limit has been exceeded. Wait a minute and try again.'
           : isNotFound
           ? 'This repository doesn\'t exist or is private.'
-          : error.message}
+          : 'An unexpected error occurred while loading the timeline. Please try again.'}
       </p>
       <div className="mt-8 flex gap-3">
         <button

@@ -9,8 +9,9 @@ import {
   fetchLanguages,
 } from '@/lib/github'
 import { processRepoData, mergeChapterTitles } from '@/lib/process'
-import { identifyChapters } from '@/lib/claude'
+import { identifyChapters } from '@/lib/ai'
 import { TimelineClient } from '@/components/TimelineClient'
+import { isAppError } from '@/lib/errors'
 
 interface Props {
   params: Promise<{ owner: string; repo: string }>
@@ -41,13 +42,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 async function TimelineData({ owner, repo }: { owner: string; repo: string }) {
-  const [repoInfo, rawCommits, rawContributors, rawReleases, languages] = await Promise.all([
-    fetchRepoInfo(owner, repo),
-    fetchAllCommits(owner, repo),
-    fetchContributors(owner, repo),
-    fetchReleases(owner, repo),
-    fetchLanguages(owner, repo),
-  ])
+  let repoInfo, rawCommits, rawContributors, rawReleases, languages
+  try {
+    ;[repoInfo, rawCommits, rawContributors, rawReleases, languages] = await Promise.all([
+      fetchRepoInfo(owner, repo),
+      fetchAllCommits(owner, repo),
+      fetchContributors(owner, repo),
+      fetchReleases(owner, repo),
+      fetchLanguages(owner, repo),
+    ])
+  } catch (err) {
+    // Only send genuine 404s to the not-found page; rate limits and other
+    // errors bubble up to the error boundary with a useful message.
+    if (isAppError(err, 'NOT_FOUND')) notFound()
+    throw err
+  }
 
   const data = processRepoData(repoInfo, rawCommits, rawContributors, rawReleases, languages)
 
@@ -57,9 +66,8 @@ async function TimelineData({ owner, repo }: { owner: string; repo: string }) {
       const titles = await identifyChapters(`${owner}/${repo}`, data.chapters)
       titledChapters = mergeChapterTitles(data.chapters, titles)
     } catch (err) {
-      const msg = err instanceof Error ? err.message : ''
       // Surface misconfiguration clearly; swallow transient AI errors gracefully
-      if (msg.includes('Server misconfigured')) throw err
+      if (isAppError(err, 'NVIDIA_ERROR')) throw err
       // Otherwise fall through with date-based default titles
     }
   }
@@ -69,16 +77,6 @@ async function TimelineData({ owner, repo }: { owner: string; repo: string }) {
 
 export default async function TimelinePage({ params }: Props) {
   const { owner, repo } = await params
-
-  try {
-    await fetchRepoInfo(owner, repo)
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : ''
-    // Only send genuine 404s to the not-found page; rate limits and other
-    // errors bubble up to the error boundary with a useful message.
-    if (msg.includes('not found') || msg.includes('private')) notFound()
-    throw err
-  }
 
   return (
     <main className="min-h-screen bg-[#050508]">

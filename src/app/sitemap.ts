@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next'
 
-const BASE = 'https://codetimeline.vercel.app'
+const BASE = process.env.NEXT_PUBLIC_APP_URL ?? 'https://codetimeline.vercel.app'
 
 const FEATURED_REPOS = [
   { owner: 'facebook', repo: 'react' },

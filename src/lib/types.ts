@@ -34,7 +34,6 @@ export interface Release {
   tag_name: string
   name: string
   published_at: string
-  body: string
 }
 
 export interface LanguageData {

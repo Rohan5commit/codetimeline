@@ -54,6 +54,8 @@ function ContributorAvatars({ contributors }: { contributors: Contributor[] }) {
             <img
               src={c.avatar_url}
               alt={c.login}
+              width={28}
+              height={28}
               className="h-full w-full object-cover"
               onError={(e) => {
                 (e.target as HTMLImageElement).src =
@@ -164,6 +166,8 @@ function ChapterCard({ chapter, index }: { chapter: Chapter; index: number }) {
                   <img
                     src={c.author.avatar_url}
                     alt={c.author.login}
+                    width={16}
+                    height={16}
                     className="mt-0.5 h-4 w-4 shrink-0 rounded-full"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src =
@@ -324,6 +328,8 @@ export function TimelineClient({ data }: Props) {
               <img
                 src={stats.avatarUrl}
                 alt={stats.owner}
+                width={56}
+                height={56}
                 className="h-14 w-14 rounded-2xl border border-white/10"
               />
             )}

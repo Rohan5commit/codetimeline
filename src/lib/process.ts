@@ -77,7 +77,7 @@ function groupCommitsIntoChapters(
       return d >= start && d <= end
     })
 
-    if (chapterCommits.length === 0 && i > 0) continue
+    if (chapterCommits.length === 0 && chapterReleases.length === 0) continue
 
     chapters.push({
       startDate: start.toISOString(),
@@ -126,7 +126,6 @@ export function processRepoData(
     tag_name: r.tag_name,
     name: r.name || r.tag_name,
     published_at: r.published_at,
-    body: (r.body || '').slice(0, 300),
   }))
 
   const contributors: Contributor[] = rawContributors.map((c) => ({
@@ -155,6 +154,7 @@ export function processRepoData(
   }
 
   const rawChapters = groupCommitsIntoChapters(commits, releases)
+  const lastChapterIndex = rawChapters.length - 1
 
   // Track which contributors are new in each chapter
   const seenContributors = new Set<string>()
@@ -177,7 +177,9 @@ export function processRepoData(
       newContributors,
       releases: c.releases,
       commitCount: c.commits.length,
-      languages,
+      // Only assign languages to the last chapter — the GitHub API returns
+      // the repo's current language snapshot, not historical per-chapter data.
+      languages: i === lastChapterIndex ? languages : {},
     }
   })
 

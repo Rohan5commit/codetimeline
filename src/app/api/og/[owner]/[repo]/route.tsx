@@ -1,6 +1,8 @@
 import { ImageResponse } from 'next/og'
 import { NextRequest } from 'next/server'
 import { fetchRepoInfo, fetchLanguages } from '@/lib/github'
+import { isAppError } from '@/lib/errors'
+import { LANG_COLORS } from '@/lib/colors'
 import type { RepoInfo } from '@/lib/types'
 
 export async function GET(
@@ -8,6 +10,12 @@ export async function GET(
   { params }: { params: Promise<{ owner: string; repo: string }> }
 ) {
   const { owner, repo } = await params
+
+  // Validate owner/repo to prevent oversized OG image renders
+  const GITHUB_SLUG = /^[a-zA-Z0-9._-]+$/
+  if (!GITHUB_SLUG.test(owner) || !GITHUB_SLUG.test(repo) || owner.length > 39 || repo.length > 100) {
+    return Response.json({ error: 'Invalid repository path' }, { status: 400 })
+  }
 
   if (!process.env.GITHUB_TOKEN) {
     console.warn('[og] GITHUB_TOKEN is not set — using unauthenticated GitHub API (60 req/hr limit)')
@@ -19,8 +27,7 @@ export async function GET(
   try {
     info = await fetchRepoInfo(owner, repo)
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    if (msg.includes('rate limit')) {
+    if (isAppError(err, 'RATE_LIMIT')) {
       return Response.json(
         { error: 'GitHub rate limit exceeded. Set GITHUB_TOKEN to increase the limit to 5,000 req/hr.' },
         { status: 429 }
@@ -43,25 +50,6 @@ export async function GET(
     .sort((a, b) => b[1] - a[1])
     .slice(0, 4)
     .map(([name]) => name)
-
-  const LANG_COLORS: Record<string, string> = {
-    TypeScript: '#3178c6',
-    JavaScript: '#f7df1e',
-    Python: '#3572A5',
-    Rust: '#dea584',
-    Go: '#00ADD8',
-    Java: '#b07219',
-    'C++': '#f34b7d',
-    C: '#555555',
-    Ruby: '#701516',
-    Swift: '#F05138',
-    Kotlin: '#A97BFF',
-    CSS: '#563d7c',
-    HTML: '#e34c26',
-    Shell: '#89e051',
-    Dart: '#00B4AB',
-    PHP: '#4F5D95',
-  }
 
   return new ImageResponse(
     (
@@ -209,6 +197,6 @@ export async function GET(
         )}
       </div>
     ),
-    { width: 1200, height: 630 }
+    { width: 1200, height: 630, alt: `${owner}/${repo} timeline on CodeTimeline` }
   )
 }

@@ -75,7 +75,7 @@ function ChapterSkeleton({ wide }: { wide?: boolean }) {
 
 export default function TimelineLoading() {
   return (
-    <div className="min-h-screen bg-[#050508]">
+    <div className="min-h-screen bg-[#050508]" role="status" aria-busy="true" aria-label="Loading timeline">
       {/* Header skeleton */}
       <div className="border-b border-white/[0.06] px-6 pb-12 pt-10">
         <div className="mx-auto max-w-4xl">
