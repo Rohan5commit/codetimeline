@@ -12,11 +12,11 @@ export const metadata: Metadata = {
   openGraph: {
     siteName: 'CodeTimeline',
     type: 'website',
-    images: [{ url: '/api/og', width: 1200, height: 630, alt: 'CodeTimeline — Visual Git History Storyteller' }],
+    images: [{ url: '/api/og-home', width: 1200, height: 630, alt: 'CodeTimeline — Visual Git History Storyteller' }],
   },
   twitter: {
     card: 'summary_large_image',
-    images: ['/api/og'],
+    images: ['/api/og-home'],
   },
 }
 
